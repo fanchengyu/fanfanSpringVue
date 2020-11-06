@@ -1,14 +1,14 @@
-const path = require('path');
+const path = require('path')
 // const defaultSettings = require('./src/settings.js')
 // const CompressionPlugin = require('compression-webpack-plugin')
 // const TerserPlugin = require('terser-webpack-plugin')
 
 function resolve(dir) {
-  return path.join(__dirname, dir);
+  return path.join(__dirname, dir)
 }
 
-const name = 'SpringVUE';
-const port = 9538; // dev port
+const name = 'SpringVUE'
+const port = 9538 // dev port
 module.exports = {
   publicPath: '/',
   outputDir: 'dist',
@@ -20,26 +20,26 @@ module.exports = {
     open: true,
     overlay: {
       warnings: false,
-      errors: true,
+      errors: true
     },
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
         target: 'http://localhost:8080',
         changeOrigin: true,
         pathRewrite: {
-          [`^${process.env.VUE_APP_BASE_API}`]: '',
-        },
-      },
-    },
+          [`^${process.env.VUE_APP_BASE_API}`]: ''
+        }
+      }
+    }
   },
   configureWebpack: {
     name,
     resolve: {
       alias: {
-        '@': resolve('src'),
-      },
-    },
-  },
+        '@': resolve('src')
+      }
+    }
+  }
   // chainWebpack(config) {
   //   config.module
   //     .rule('vue')
@@ -85,4 +85,4 @@ module.exports = {
   //       }
   //     )
   // }
-};
+}

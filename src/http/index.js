@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+import { Message, Notification } from 'element-ui'
 const fanfanHttp = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   withCredentials: false,
@@ -18,6 +18,13 @@ fanfanHttp.interceptors.request.use(
 // response interceptor
 fanfanHttp.interceptors.response.use(response => {
   if (response.status === 200) {
+    if (response.data.code !== '0') {
+      Notification.error({
+        title: '错误',
+        message: response.data.message
+      })
+      return Promise.reject(response.data.message)
+    }
     return Promise.resolve(response.data)
   } else {
     return Promise.reject(response.data)
@@ -51,4 +58,13 @@ function get(url, params) {
     })
   })
 }
-export { get }
+function post(url, body, config) {
+  return new Promise((resolve, reject) => {
+    fanfanHttp.post(url, body, config).then(res => {
+      resolve(res)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+export { get, post }

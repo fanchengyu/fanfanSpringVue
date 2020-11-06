@@ -13,12 +13,12 @@ const routes = [
     path: '/',
     name: 'Login',
     component: () => import('../../src/views/login')
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: () => import('../views/home/index.vue')
   }
-  // {
-  //   path: '/home',
-  //   name: 'Home',
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-  // },
 ]
 
 const router = new VueRouter({
