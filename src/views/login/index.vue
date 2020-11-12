@@ -29,6 +29,7 @@ export default {
     }
   },
   methods: {
+
     submitForm() {
       loginSystem(this.ruleForm).then(res => {
         this.$message({

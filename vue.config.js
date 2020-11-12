@@ -2,7 +2,7 @@ const path = require('path')
 // const defaultSettings = require('./src/settings.js')
 // const CompressionPlugin = require('compression-webpack-plugin')
 // const TerserPlugin = require('terser-webpack-plugin')
-
+console.log({ __dirname })
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
@@ -10,11 +10,15 @@ function resolve(dir) {
 const name = 'SpringVUE'
 const port = 9538 // dev port
 module.exports = {
-  publicPath: '/',
-  outputDir: 'dist',
-  assetsDir: 'static',
-  lintOnSave: process.env.NODE_ENV === 'development',
-  productionSourceMap: false,
+  publicPath: '/lol', // 部署应用包时的基本URL，默认'/'
+  outputDir: 'dist', // build时构建的生产环境文件的目录,默认dist
+  assetsDir: 'static', // 放置生成的静态资源的目录，相对于outputdir，即打好包的js图片css等文件在static里面 默认''
+  indexPath: 'index.html', // 生成的index.html的输出路径默认为index.html
+  filenameHashing: true, // 文件名哈希。 默认为true
+  lintOnSave: /** process.env.NODE_ENV === 'development'*/ 'default', // 保存时使用eslint校验，开发环境启用,设为default时，lint错误会导致无法编译
+  runtimeCompiler: true, // 是否启用运行时编译，默认false  开启true的话就可以在template中使用字符串模板，而不局限于.vue文件
+  transpileDependencies: [], // 需要转译的node_modules里面的文件，通常情况不需要
+  productionSourceMap: false, // 设置为true时，在生产环境浏览器控制台报错时可以看到源码
   devServer: {
     port,
     open: true,
@@ -24,7 +28,7 @@ module.exports = {
     },
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8080/',
         changeOrigin: true,
         pathRewrite: {
           [`^${process.env.VUE_APP_BASE_API}`]: ''
@@ -32,7 +36,9 @@ module.exports = {
       }
     }
   },
+  /** webpack配置项 */
   configureWebpack: {
+    // entry: './src', // 打包的入口，默认为./src
     name,
     resolve: {
       alias: {

@@ -32,9 +32,9 @@ fanfanHttp.interceptors.response.use(response => {
 },
 error => {
   console.log('error', error.response)
-  if (error.response && error.response.data) {
+  if (error.response && error.response.error) {
     Message({
-      message: `${error.response.data}`,
+      message: `${error.response.error}`,
       type: 'error',
       duration: 5 * 1000
     })
@@ -67,4 +67,22 @@ function post(url, body, config) {
     })
   })
 }
-export { get, post }
+function patch(url, body, config) {
+  return new Promise((resolve, reject) => {
+    fanfanHttp.patch(url, body, config).then(res => {
+      resolve(res)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+function del(url, params) {
+  return new Promise((resolve, reject) => {
+    fanfanHttp.delete(url, { params }).then(res => {
+      resolve(res)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+export { get, post, del, patch }
