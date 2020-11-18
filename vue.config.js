@@ -10,7 +10,7 @@ function resolve(dir) {
 const name = 'SpringVUE'
 const port = 9538 // dev port
 module.exports = {
-  publicPath: '/lol', // 部署应用包时的基本URL，默认'/'
+  publicPath: '/', // 部署应用包时的基本URL，默认'/'
   outputDir: 'dist', // build时构建的生产环境文件的目录,默认dist
   assetsDir: 'static', // 放置生成的静态资源的目录，相对于outputdir，即打好包的js图片css等文件在static里面 默认''
   indexPath: 'index.html', // 生成的index.html的输出路径默认为index.html
