@@ -36,6 +36,15 @@ module.exports = {
       }
     }
   },
+  pwa: {
+    iconPaths: {
+      favicon32: 'favicon.ico',
+      favicon16: 'favicon.ico',
+      appleTouchIcon: 'favicon.ico',
+      maskIcon: 'favicon.ico',
+      msTileImage: 'favicon.ico'
+    }
+  },
   /** webpack配置项 */
   configureWebpack: {
     // entry: './src', // 打包的入口，默认为./src
