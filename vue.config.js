@@ -2,7 +2,7 @@ const path = require('path')
 // const defaultSettings = require('./src/settings.js')
 // const CompressionPlugin = require('compression-webpack-plugin')
 // const TerserPlugin = require('terser-webpack-plugin')
-console.log({ __dirname })
+// console.log({ __dirname })
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
@@ -28,7 +28,7 @@ module.exports = {
     },
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://localhost:8080/',
+        target: 'http://106.52.98.247:8080/',
         changeOrigin: true,
         pathRewrite: {
           [`^${process.env.VUE_APP_BASE_API}`]: ''
@@ -45,6 +45,14 @@ module.exports = {
         '@': resolve('src')
       }
     }
+  },
+  chainWebpack: config => {
+    config
+      .plugin('html')
+      .tap(args => {
+        args[0].title = '范范AND乐乐'
+        return args
+      })
   }
   // chainWebpack(config) {
   //   config.module

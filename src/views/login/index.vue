@@ -52,8 +52,19 @@ export default {
 </script>
 <style lang="scss">
 .main_login_page{
+    background: url(/img/icons/bj2.jpg);
+    background-size:cover;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
    .demo-ruleForm{
     width:500px;
+    height:300px;
+     display:flex;
+     flex-direction: column;
+   justify-content: center;
+//align-items: center;
   }
 }
 
