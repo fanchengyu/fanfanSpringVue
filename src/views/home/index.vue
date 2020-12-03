@@ -31,6 +31,7 @@
         <el-table-column
           prop="number"
           label="编号"
+          width="120"
         />
         <el-table-column
           prop="sex"
@@ -40,16 +41,17 @@
         <el-table-column
           prop="create_date"
           label="创建时间"
-          width="120"
+          width="180"
         />
         <el-table-column
           prop="finish_date"
           label="完成时间"
-          width="120"
+          width="180"
         />
         <el-table-column
           prop="weight"
           label="体重"
+          width="120"
         />
         <el-table-column
           prop="length"
@@ -59,12 +61,26 @@
         <el-table-column
           prop="class_id"
           label="班级"
+          width="120"
         />
         <el-table-column
           prop="pass_word"
           label="密码"
+          width="120"
         />
-        <el-table-column label="操作" width="160">
+        <el-table-column
+          label="头像"
+          width="120"
+        >
+          <template v-slot="{row}">
+            <el-image
+              style="width: 50px; height: 50px"
+              :src="row.img"
+              :preview-src-list="[row.img]"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
           <template v-slot="{$index,row}">
             <el-button
               size="mini"
@@ -128,6 +144,9 @@
         <el-form-item label="密码">
           <el-input v-model="form.pass_word" />
         </el-form-item>
+        <el-form-item label="头像">
+          <el-input v-model="form.pass_word" />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">确定</el-button>
           <el-button @click="onCancel">取消</el-button>
@@ -147,6 +166,7 @@ export default {
   },
   data() {
     return {
+      defaultURL: '/img/home/girlDefault.png',
       tableData: [],
       form: {
         name: '',
@@ -157,7 +177,8 @@ export default {
         weight: '',
         length: '',
         class_id: 2,
-        pass_word: ''
+        pass_word: '',
+        img: ''
 
       },
       formDialog: false,
@@ -174,6 +195,7 @@ export default {
         res.items.forEach(eve => {
           eve.create_date = eve.create_date ? moment(eve.create_date).format('YYYY-MM-DD') : '暂无'
           eve.finish_date = eve.finish_date ? moment(eve.finish_date).format('YYYY-MM-DD') : '暂无'
+          eve.img = eve.img || this.defaultURL
         })
         this.tableData = res.items
       }).finally(x => {

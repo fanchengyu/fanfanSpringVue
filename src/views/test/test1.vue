@@ -1,6 +1,14 @@
 <template>
-  <div style="width：100%">
+  <div class="test1">
+    <a href="/">A标签 <span>222</span></a>
     <h1>TEST1</h1>
+    <h1>TEST111</h1>
+    <h1>TEST1111</h1>
+    <a href="#">567</a>
+    <div class="lele_div">
+      <section>section里的内容</section>
+    </div>
+    <div class="fan_div">fan_div</div>
   </div>
 </template>
 <script>
@@ -23,18 +31,41 @@ export default {
 }
 </script>
 
-<style>
-  .grid-content {
-    border-radius: 4px;
-    min-height: 36px;
+<style lang="scss">
+$common-color:red;
+@import '../../style/variables.scss';
+@import '../../style/mixin.scss';
+  .test1{
+    a{
+    &:hover{
+      color:$common-color
+    }
+    ~ h1{
+      color:red;
+      background: {
+        color:yellow;
+        size:cover;
+        repeat:repeat;
+      };
+    }
+    + h1{
+      font-weight: 700;
+    }
+    ~ a{
+      font-size:40px + 100px;
+    }
   }
-  .bg-purple-dark {
-    background: #99a9bf;
+  /**SASS局部文件的文件名以下划线开头，这样就不会编译输出css，而只是用作导入，引用时可省略下滑线 */
+  /**嵌套导入--SASS允许@import命令写在css规则内 */
+  .lele_div{
+      @include mysass;
+      @import '../../style/lele-style';
+
+    }
   }
-  .bg-purple {
-    background: #d3dce6;
-  }
-  .bg-purple-light {
-    background: #e5e9f2;
-  }
+
+//  静默注释  这种注释内容不会出现在生成的css文件中
+/* 这种注释内容会出现在css文件中*/
+
+/**使用混合器来避免重复 @mixin @include*/
 </style>

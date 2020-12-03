@@ -1,4 +1,4 @@
-$common-color: #409EFF;
+$common-color: #409EFF !default;
 $font-family:"Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 $font-size: 16px;
 $font-color:#222;
@@ -6,3 +6,4 @@ $commom-back:#eee;
 
 
 
+/** !default 默认变量值   设置了默认变量值，在引入本scss文件之前设置的变量将会生效*/
