@@ -33,6 +33,10 @@ module.exports = {
         pathRewrite: {
           [`^${process.env.VUE_APP_BASE_API}`]: ''
         }
+      },
+      '/wx/storage/': {
+        target: `http://10.19.5.168:9998`,
+        changeOrigin: true
       }
     }
   },
@@ -59,20 +63,20 @@ module.exports = {
     config
       .plugin('html')
       .tap(args => {
-        args[0].title = '范范AND乐乐'
+        args[0].title = '测试项目'
         return args
       })
+    config.module
+      .rule('vue')
+      .use('vue-loader')
+      .loader('vue-loader')
+      .tap(options => {
+        options.compilerOptions.preserveWhitespace = true
+        return options
+      })
+      .end()
   }
-  // chainWebpack(config) {
-  //   config.module
-  //     .rule('vue')
-  //     .use('vue-loader')
-  //     .loader('vue-loader')
-  //     .tap(options => {
-  //       options.compilerOptions.preserveWhitespace = true
-  //       return options
-  //     })
-  //     .end()
+
   //   config
   //     .when(process.env.NODE_ENV === 'development',
   //       config => config.devtool('cheap-source-map')

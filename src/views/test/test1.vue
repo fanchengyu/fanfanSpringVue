@@ -9,6 +9,7 @@
       <section>section里的内容</section>
     </div>
     <div class="fan_div">fan_div</div>
+    <el-button @click="go">点我</el-button>
   </div>
 </template>
 <script>
@@ -26,7 +27,9 @@ export default {
 
   },
   methods: {
-
+    go() {
+      location.href = '/wx/storage/preview/D-131158-R2020-0125-1607588951597.pdf'
+    }
   }
 }
 </script>

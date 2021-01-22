@@ -1,9 +1,9 @@
 <template>
   <div class="main_login_page">
     <div class="login_page_title">
-      <div>
+      <!-- <div>
         范范和乐乐的窝窝<img src="/img/icons/jhz.jpg">
-      </div>
+      </div> -->
     </div>
     <div class="login_page_content">
       <el-form ref="ruleForm" :model="ruleForm" status-icon :rules="rules" label-width="100px" class="demo-ruleForm">
