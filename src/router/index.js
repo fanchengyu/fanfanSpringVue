@@ -23,6 +23,16 @@ const routes = [
     path: '/test',
     name: 'Test',
     component: () => import('../views/test/index.vue')
+  },
+  {
+    path: '/dhx',
+    name: 'DHX',
+    component: () => import('../views/dhx/gantt.vue')
+  },
+  {
+    path: '/elastic',
+    name: 'Elastic',
+    component: () => import('../views/elastic/gantt.vue')
   }
 ]
 
