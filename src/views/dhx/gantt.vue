@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import { gantt } from 'dhtmlx-gantt'
+// import { gantt } from 'dhtmlx-gantt'
 export default {
   name: 'Gantt',
   components: {},
@@ -19,7 +19,8 @@ export default {
             text: '兰州万里项目',
             start_date: '2021-01-17',
             duration: 30,
-            progress: 0.6
+            progress: 0.6,
+            open: true
           },
           {
             id: 11,
@@ -28,7 +29,7 @@ export default {
             duration: 5,
             progress: 0.1,
             parent: 1,
-            open: true,
+
             calendar_id: 'custom'
           },
           {
@@ -38,7 +39,7 @@ export default {
             duration: 10,
             progress: 0.3,
             parent: 1,
-            open: true,
+
             calendar_id: 'custom'
           },
           {
@@ -48,7 +49,7 @@ export default {
             duration: 3,
             progress: 0.22,
             parent: 1,
-            open: true,
+
             calendar_id: 'custom'
           },
           {
@@ -56,7 +57,8 @@ export default {
             text: '兰飞项目',
             start_date: '2021-02-16',
             duration: 16,
-            progress: 0.03
+            progress: 0.03,
+            open: true
           },
           {
             id: 21,
@@ -65,7 +67,7 @@ export default {
             duration: 2,
             progress: 0.8,
             parent: 2,
-            open: true,
+
             calendar_id: 'custom'
           },
           {
@@ -75,7 +77,6 @@ export default {
             duration: 11,
             progress: 0.5,
             parent: 2,
-            open: true,
             calendar_id: 'custom'
           },
           {
@@ -85,7 +86,6 @@ export default {
             duration: 2,
             progress: 0.6,
             parent: 2,
-            open: true,
             calendar_id: 'custom'
           }
         ],
@@ -94,7 +94,9 @@ export default {
     }
   },
   mounted() {
+    // eslint-disable-next-line no-undef
     const ganttS = gantt
+
     ganttS.plugins({
       tooltip: true,
       multiselect: true
@@ -118,18 +120,16 @@ export default {
     ]
     ganttS.locale.date.month_short = 月
     ganttS.locale.date.month_full = 月
-    // gantt.config.drag_project = true
-    ganttS.config.fit_tasks = true
     /** 设置时间格式 */
     ganttS.config.xml_date = '%Y-%m-%d'
     /** 表格列宽自适应*/
-    ganttS.config.autofit = false
+    // ganttS.config.autofit = false
     /** autoscroll 拖拽时的滚动条*/
     ganttS.config.autoscroll = true
     ganttS.config.autoscroll_speed = 50
     /** autosize 自适应甘特图尺寸大小 */
     // gantt.config.autosize = 'y'
-    ganttS.config.scale_unit = 'week'
+    ganttS.config.scale_unit = 'day'
     ganttS.config.date_scale = '%Y-%m-%d'
     ganttS.config.drag_links = true
     ganttS.config.multiselect = true
@@ -158,6 +158,7 @@ export default {
         'complete_button'
       ]
     })
+
     ganttS.init(this.$refs.gantt)
     ganttS.parse(this.tasks)
     console.log('config', ganttS)
@@ -167,7 +168,7 @@ export default {
 </script>
 
 <style >
-@import '~dhtmlx-gantt/codebase/dhtmlxgantt.css';
+/* @import '~dhtmlx-gantt/codebase/dhtmlxgantt.css'; */
 .complete_button {
   margin-top: 2px;
   /**background-image: url('common/v_complete.png');*/
