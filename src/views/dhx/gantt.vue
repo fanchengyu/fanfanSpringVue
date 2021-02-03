@@ -7,11 +7,10 @@
         <el-button type="danger">删除</el-button>
         <el-button type="primary">office projrct导入</el-button>
         <el-button type="primary">excel导入</el-button>
-        <el-button type="primary" @click="updateCriticalPath">{{ `${showCritical?'隐藏':'显示'}关键路径` }}</el-button>
-        <el-button type="success">成功按钮</el-button>
-        <el-button type="info">信息按钮</el-button>
+        <el-button type="primary" @click="updateCriticalPath">{{ `${showCritical?'隐藏':'显示'}关键路径(收费)` }}</el-button>
+        <el-button type="success" @click="undo">回退</el-button>
+        <el-button type="info" @click="redo">前进</el-button>
         <el-button type="warning">警告按钮</el-button>
-
         <el-button>默认按钮</el-button>
         <el-button type="primary">主要按钮</el-button>
         <el-button type="success">成功按钮</el-button>
@@ -22,6 +21,7 @@
     </div>
     <div
       ref="gantt"
+      class="ok"
       style="height:100%;padding: 0px;
 			margin: 0px;
 			overflow: hidden;"
@@ -29,7 +29,7 @@
   </div>
 </template>
 <script>
-// import { gantt } from 'dhtmlx-gantt'
+import { gantt } from 'dhtmlx-gantt'
 export default {
   name: 'Gantt',
   components: {},
@@ -39,7 +39,7 @@ export default {
         data: [],
         links: []
       },
-      ganttS: null,
+      gantt: null,
       showCritical: false
     }
   },
@@ -51,6 +51,8 @@ export default {
         text: '兰州万里项目',
         start_date: '',
         duration: 0,
+        // type: 'project',
+        // render: 'split',
         progress: 0.6,
         open: true,
         cs1: 'ddd',
@@ -108,40 +110,55 @@ export default {
     }
   },
   mounted() {
-    // eslint-disable-next-line no-undef
-    const ganttS = gantt
-    this.ganttS = ganttS
-    ganttS.i18n.setLocale('cn')
-    ganttS.config.min_column_width = 40
-    // ganttS.config.auto_types = true
-    ganttS.plugins({
+    this.gantt = gantt
+    gantt.i18n.setLocale('cn')
+    gantt.config.min_column_width = 40
+    // gantt.config.auto_types = true
+    gantt.plugins({
       // click_drag: true,
       tooltip: true,
       multiselect: true, // 多选
       critical_path: true, // 关键路径，
-      marker: true // 标记线
+      marker: true, // 标记线,
+      undo: true // 回退
+      // keyboard_navigation: true // 键盘操作
     })
+    //  隐藏周末  收费
+    // gantt.ignore_time = function(date) {
+    //   if (date.getDay() === 0 || date.getDay() === 6) { return true }
+    //   return false
+    // }
     /** 设置时间格式 */
-    ganttS.config.xml_date = '%Y-%m-%d'
-    ganttS.config.date_format = '%Y-%m-%d %H:%i'
+    gantt.config.xml_date = '%Y-%m-%d'
+    gantt.config.date_format = '%Y-%m-%d %H:%i'
     /** 表格列宽自适应*/
-    // ganttS.config.autofit = false
+    // gantt.config.autofit = false
     /** autoscroll 拖拽时的滚动条*/
-    ganttS.config.autoscroll = true
-    ganttS.config.autoscroll_speed = 60
+    gantt.config.autoscroll = true
+    gantt.config.autoscroll_speed = 60
     /** autosize 自适应甘特图尺寸大小 */
-    // ganttS.config.autosize = 'xy'
-    // ganttS.config.autosize_min_width = 14600
+    // gantt.config.autosize = 'xy'
+    // gantt.config.autosize_min_width = 14600
     var weekScaleTemplate = function(date) {
-      const dateToStr = ganttS.date.date_to_str('%M%d日')
-      var endDate = ganttS.date.add(ganttS.date.add(date, 1, 'week'), -1, 'day')
+      const dateToStr = gantt.date.date_to_str('%M%d日')
+      var endDate = gantt.date.add(gantt.date.add(date, 1, 'week'), -1, 'day')
       return dateToStr(date) + ' - ' + dateToStr(endDate)
     }
-    // ganttS.templates.timeline_cell_class = function(item, date) {
-    //   if (!ganttS.isWorkTime(date)) {
+    // gantt.templates.timeline_cell_class = function(item, date) {
+    //   if (!gantt.isWorkTime(date)) {
     //     return 'weekend'
     //   }
     // }
+    // gantt.templates.scale_cell_class = function(date) {
+    //   if (date.getDay() === 0 || date.getDay() === 6) {
+    //     return 'weekend'
+    //   }
+    // }
+    gantt.templates.timeline_cell_class = function(item, date) {
+      if (date.getDay() === 0 || date.getDay() === 6) {
+        return 'weekend'
+      }
+    }
 
     var daysStyle = function(date) {
       if (date.getDay() === 0 || date.getDay() === 6) {
@@ -149,21 +166,21 @@ export default {
       }
       return ''
     }
-    ganttS.config.scales = [
+    gantt.config.scales = [
       { unit: 'month', format: '%Y年%M' },
       { unit: 'week', step: 1, format: weekScaleTemplate },
       { unit: 'day', step: 1, format: '%D', css: daysStyle },
       { unit: 'day', step: 1, format: '%j', css: daysStyle }
     ]
-    ganttS.config.scale_height = 90
+    gantt.config.scale_height = 90
 
     /** 行编辑功能 */
     const textEditor = { type: 'text', map_to: 'text' }
     const dateEditor = { type: 'date', map_to: 'start_date', min: new Date(2018, 0, 1), max: new Date(2059, 0, 1) }
     const durationEditor = { type: 'number', map_to: 'duration', min: 0, max: 100 }
-    ganttS.config.reorder_grid_columns = true
-    ganttS.config.columns = [
-      { name: 'wbs', label: 'WBS', resize: true, width: 80, align: 'center', template: ganttS.getWBSCode },
+    gantt.config.reorder_grid_columns = true
+    gantt.config.columns = [
+      { name: 'wbs', label: 'WBS', resize: true, width: 80, align: 'center', template: gantt.getWBSCode },
       { name: 'text', label: '项目名称', tree: true, min_width: 180, editor: textEditor, resize: true },
       { name: 'start_date', label: '开始时间', align: 'center', editor: dateEditor, resize: true },
       { name: 'duration', label: '工期', align: 'center', width: 100, editor: durationEditor, resize: true },
@@ -172,7 +189,7 @@ export default {
     /** 自定义编辑事件 */
     var mapping = {
       init: function(inlineEditors) {
-        ganttS.attachEvent('onTaskDblClick', function(id, e) {
+        gantt.attachEvent('onTaskDblClick', function(id, e) {
           var cell = inlineEditors.locateCell(e.target)
           if (cell && inlineEditors.getEditorConfig(cell.columnName)) {
             inlineEditors.startEdit(cell.id, cell.columnName)
@@ -180,7 +197,7 @@ export default {
           }
           return true
         })
-        ganttS.attachEvent('onEmptyClick', function() {
+        gantt.attachEvent('onEmptyClick', function() {
           inlineEditors.hide()
           return true
         })
@@ -192,14 +209,14 @@ export default {
             return
           }
 
-          var keyboard = ganttS.constants.KEY_CODES
+          var keyboard = gantt.constants.KEY_CODES
 
           var shouldPrevent = true
           switch (e.keyCode) {
-            case ganttS.keys.edit_save:
+            case gantt.keys.edit_save:
               inlineEditors.save()
               break
-            case ganttS.keys.edit_cancel:
+            case gantt.keys.edit_cancel:
               inlineEditors.hide()
               break
             case keyboard.TAB:
@@ -220,12 +237,12 @@ export default {
       },
       onHide: function(inlineEditors, node) {}
     }
-    ganttS.ext.inlineEditors.setMapping(mapping)
+    gantt.ext.inlineEditors.setMapping(mapping)
     /** 表头排序 */
-    ganttS.config.sort = true
+    gantt.config.sort = true
 
     /** 左侧表格横向 */
-    // ganttS.config.layout = {
+    // gantt.config.layout = {
     //   css: 'gantt_container',
     //   cols: [
     //     {
@@ -247,19 +264,19 @@ export default {
     //   ]
     // }
 
-    // ganttS.attachEvent('onParse', function() {
-    //   ganttS.eachTask(function(task) {
+    // gantt.attachEvent('onParse', function() {
+    //   gantt.eachTask(function(task) {
     //     // fill 'task.user' field with random data
     //     task.user = Math.round(Math.random() * 3)
     //     //
-    //     if (ganttS.hasChild(task.id)) { task.type = ganttS.config.types.project }
+    //     if (gantt.hasChild(task.id)) { task.type = gantt.config.types.project }
     //   })
     // })
 
-    ganttS.config.drag_links = true
+    gantt.config.drag_links = true
     /** 任务的逻辑关系提示 */
     const that = this
-    ganttS.attachEvent('onLinkClick', function(id) {
+    gantt.attachEvent('onLinkClick', function(id) {
       var link = this.getLink(id)
       var src = this.getTask(link.source)
       var trg = this.getTask(link.target)
@@ -286,37 +303,37 @@ export default {
           break
       }
       that.$message.warning(`必须${first}${src.text}才能${second}${trg.text}`)
-      // ganttS.message()
+      // gantt.message()
     })
 
     /** 里程碑 */
-    ganttS.templates.rightside_text = function(start, end, task) {
-      if (task.type === ganttS.config.types.milestone) {
+    gantt.templates.rightside_text = function(start, end, task) {
+      if (task.type === gantt.config.types.milestone) {
         return task.text
       }
       return ''
     }
-    ganttS.config.lightbox.sections = [
+    gantt.config.lightbox.sections = [
       { name: 'description', height: 70, map_to: 'text', type: 'textarea', focus: true },
       { name: 'type', type: 'typeselect', map_to: 'type' },
       { name: 'time', type: 'duration', map_to: 'auto' }
     ]
-    ganttS.config.multiselect = true
-    ganttS.config.multiselect_one_level = true
+    gantt.config.multiselect = true
+    gantt.config.multiselect_one_level = true
     /** 弹出框左下角的按钮 */
-    // ganttS.locale.labels['complete_button'] = '完成'
+    // gantt.locale.labels['complete_button'] = '完成'
 
-    // ganttS.locale.labels.icon_save = '保存'
-    // ganttS.locale.labels.icon_cancel = '取消'
-    // ganttS.locale.labels.icon_delete = '删除'
+    // gantt.locale.labels.icon_save = '保存'
+    // gantt.locale.labels.icon_cancel = '取消'
+    // gantt.locale.labels.icon_delete = '删除'
 
-    // ganttS.attachEvent('onGanttReady', function() {
-    //   ganttS.config.buttons_left = ['gantt_save_btn', 'gantt_cancel_btn',
+    // gantt.attachEvent('onGanttReady', function() {
+    //   gantt.config.buttons_left = ['gantt_save_btn', 'gantt_cancel_btn',
     //     'complete_button']
     // })
 
     /** 拖拽新建项目--后续看 */
-    // ganttS.config.click_drag = {
+    // gantt.config.click_drag = {
     //   callback: onDragEnd,
     //   singleRow: true
     // }
@@ -325,82 +342,94 @@ export default {
     //     var currentTask = tasksInRow[0]
     //     if (currentTask.type === 'project') {
     //       currentTask.render = 'split'
-    //       ganttS.addTask({
+    //       gantt.addTask({
     //         text: 'Subtask of ' + currentTask.text,
-    //         start_date: ganttS.roundDate(startDate),
-    //         end_date: ganttS.roundDate(endDate)
+    //         start_date: gantt.roundDate(startDate),
+    //         end_date: gantt.roundDate(endDate)
     //       }, currentTask.id)
     //     } else {
     //       var projectName = 'new Project ' + currentTask.text
-    //       var newProject = ganttS.addTask({
+    //       var newProject = gantt.addTask({
     //         text: projectName,
     //         render: 'split',
     //         type: 'project'
     //       }, currentTask.parent)
-    //       ganttS.moveTask(newProject, ganttS.getTaskIndex(currentTask.id), ganttS.getParent(currentTask.id))
-    //       ganttS.moveTask(currentTask.id, 0, newProject)
-    //       ganttS.calculateTaskLevel(currentTask)
+    //       gantt.moveTask(newProject, gantt.getTaskIndex(currentTask.id), gantt.getParent(currentTask.id))
+    //       gantt.moveTask(currentTask.id, 0, newProject)
+    //       gantt.calculateTaskLevel(currentTask)
 
-    //       var newTask = ganttS.addTask({
+    //       var newTask = gantt.addTask({
     //         text: 'Subtask of ' + projectName,
-    //         start_date: ganttS.roundDate(startDate),
-    //         end_date: ganttS.roundDate(endDate)
+    //         start_date: gantt.roundDate(startDate),
+    //         end_date: gantt.roundDate(endDate)
     //       }, newProject)
-    //       ganttS.calculateTaskLevel(newTask)
+    //       gantt.calculateTaskLevel(newTask)
     //     }
     //   } else if (tasksInRow.length === 0) {
-    //     ganttS.createTask({
+    //     gantt.createTask({
     //       text: 'New task',
-    //       start_date: ganttS.roundDate(startDate),
-    //       end_date: ganttS.roundDate(endDate)
+    //       start_date: gantt.roundDate(startDate),
+    //       end_date: gantt.roundDate(endDate)
     //     })
     //   }
     // }
     /** 拖拽时避开周六周日 */
-    ganttS.config.work_time = true
-    ganttS.config.correct_work_time = true
+    gantt.config.work_time = true
+    gantt.config.correct_work_time = true
 
     /** 甘特图显示标记线 */
-    const dateToStrMarker = ganttS.date.date_to_str('%Y年%M%d日')
+    const dateToStrMarker = gantt.date.date_to_str('%Y年%M%d日')
     const today = new Date()
-    ganttS.addMarker({
+    gantt.addMarker({
       start_date: today,
       css: 'today',
       text: '今天',
       title: '今天: ' + dateToStrMarker(today)
     })
-    ganttS.config.open_tree_initially = true
-    ganttS.config.order_branch = true
-    ganttS.config.order_branch_free = true
-    ganttS.config.tooltip_timeout = 30
-    ganttS.config.tooltip_hide_timeout = 5000
-    ganttS.config.tooltip_offset_x = 40
-    ganttS.config.tooltip_offset_y = 40
-    ganttS.templates.tooltip_text = (start, end, task) => {
+    gantt.config.open_tree_initially = true
+    gantt.config.order_branch = true
+    gantt.config.order_branch_free = true
+    gantt.config.tooltip_timeout = 30
+    gantt.config.tooltip_hide_timeout = 5000
+    gantt.config.tooltip_offset_x = 40
+    gantt.config.tooltip_offset_y = 40
+    /** 拖拽收费 */
+    gantt.config.autofit = true
+    gantt.config.grid_width = 1000
+    gantt.config.keep_grid_width = false
+    gantt.config.grid_resize = true
+    gantt.templates.tooltip_text = (start, end, task) => {
       return (
         '<b>项目名称:</b> ' + task.text + '<br/><b>工期:</b> ' + task.duration
       )
     }
 
-    ganttS.init(this.$refs.gantt)
+    gantt.init(this.$refs.gantt)
     console.log('性能', this.tasks)
-    ganttS.parse(this.tasks)
+    gantt.parse(this.tasks)
 
-    console.log('gantt', ganttS)
+    console.log('gantt', gantt)
   },
   methods: {
     /** 显示/隐藏关键路径 */
     updateCriticalPath() {
       this.showCritical = !this.showCritical
-      this.ganttS.config.highlight_critical_path = this.showCritical
-      this.ganttS.render()
+      this.gantt.config.highlight_critical_path = this.showCritical
+      this.gantt.render()
+    },
+    undo() {
+      this.gantt.undo()
+    },
+    redo() {
+      this.gantt.redo()
     }
   }
 }
 </script>
 
 <style >
-/* @import '~dhtmlx-gantt/codebase/dhtmlxgantt.css'; */
+/**gantt_critical_task*/
+ @import '~dhtmlx-gantt/codebase/dhtmlxgantt.css';
 .complete_button {
   margin-top: 2px;
   background-image: url('/img/icons/android-chrome-192x192.png');
