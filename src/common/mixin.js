@@ -412,6 +412,8 @@ export const publicConfigGantt = {
       gantt.config.open_tree_initially = true
       gantt.config.order_branch = true
       gantt.config.order_branch_free = true
+      gantt.config.fit_tasks = true
+      gantt.config.drag_project = true
 
       /** 拖拽收费 */
       // gantt.config.autofit = true
@@ -423,13 +425,7 @@ export const publicConfigGantt = {
           '<b>项目名称:</b> ' + task.text + '<br/><b>工期:</b> ' + task.duration
         )
       }
-
-      gantt.init(this.$refs.gantt)
-      console.log('性能', this.tasks)
-      gantt.parse(this.tasks)
-      // gantt.config.grid_width = 0
       this.gantt = gantt
-      console.log('gantt', gantt)
     }
   }
 }

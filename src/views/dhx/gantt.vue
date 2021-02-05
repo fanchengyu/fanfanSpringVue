@@ -2,11 +2,26 @@
 <template>
   <div style="width：100%;height:calc(100vh - 60px)">
     <div style="text-align:center;padding:10px 0;">
-      <el-row>
-        <!-- <el-button>编辑</el-button>
-        <el-button type="danger">删除</el-button> -->
-        <!-- <el-button type="primary">office projrct导入</el-button>
-        <el-button type="primary">excel导入</el-button> -->
+      <el-row style="display:flex;justify-content: center">
+        <el-upload
+          style="padding: 0 10px;"
+          :show-file-list="false"
+          action="#"
+          accept=".mpp,.xml,.MPP,.XML"
+          :http-request="importByMPP"
+        >
+          <el-button type="primary">通过mpp或xml导入</el-button>
+        </el-upload>
+        <el-upload
+          style="padding: 0 10px;"
+          :show-file-list="false"
+          action="#"
+          accept=".xls,.xlsx,.XLS,.XLSX"
+          :http-request="importByEXC"
+        >
+          <el-button type="primary">通过EXCEL导入</el-button>
+        </el-upload>
+
         <el-button type="primary" @click="updateCriticalPath">{{ `${showCritical?'隐藏':'显示'}关键路径(收费)` }}</el-button>
         <el-button type="success" @click="undo">回退</el-button>
         <el-button type="info" @click="redo">前进</el-button>
@@ -40,7 +55,8 @@ export default {
         data: [],
         links: []
       },
-      showCritical: false
+      showCritical: false,
+      calendarId: null
     }
   },
   created() {
@@ -48,7 +64,7 @@ export default {
       this.tasks.data.push({
         id: i,
         // calendar_id: 'custom',
-        text: '兰州万里项目',
+        text: '航天六院项目',
         start_date: '',
         duration: 0,
         // type: 'project',
@@ -58,7 +74,7 @@ export default {
       },
       {
         id: `${i}-1`,
-        text: '万里项目规划',
+        text: '航天六院项目规划',
         start_date: '2021-01-17',
         duration: 5,
         progress: 0.1,
@@ -66,12 +82,12 @@ export default {
         deadline: '2021-01-20 00-00-00',
         planned_start: '2021-01-15',
         planned_end: '2021-01-18',
-        calendar_id: 'custom',
+        calendar_id: 'roots',
         open: true
       },
       {
         id: `${i}-2`,
-        text: '万里项目进行',
+        text: '航天六院项目进行',
         start_date: '2021-01-25',
         duration: 10,
         progress: 0.3,
@@ -81,7 +97,7 @@ export default {
       },
       {
         id: `${i}-3`,
-        text: '万里项目收尾',
+        text: '航天六院项目收尾',
         start_date: '2021-02-08',
         duration: 3,
         progress: 0.22,
@@ -91,7 +107,7 @@ export default {
       },
       {
         id: `${i}-4`,
-        text: '万里项目里程碑',
+        text: '航天六院项目里程碑',
         start_date: '2021-02-12',
         duration: 0,
         progress: 0.22,
@@ -110,7 +126,14 @@ export default {
     }
   },
   mounted() {
+    /** 自定义工作日 */
+    // this.setCalendarId()
+    /** gantt Alert */
+    // this.alert()
+    this.gantt.init(this.$refs.gantt)
+    this.gantt.parse(this.tasks)
 
+    console.log('gantt', this.gantt)
   },
 
   methods: {
@@ -137,6 +160,136 @@ export default {
     },
     exportToExcel() {
       this.gantt.exportToExcel()
+    },
+    importByMPP(file) {
+      this.gantt.importFromMSProject({
+        data: file.file,
+        callback: (project) => {
+          if (project) {
+            this.gantt.parse(project.data)
+          }
+        }
+      })
+    },
+    importByEXC(file) {
+      this.gantt.importFromExcel({
+        // server: 'https://export.dhtmlx.com/gantt',
+        data: file.file,
+        callback: (project) => {
+          if (project) {
+            var header = []
+            var headerControls = []
+            var body = []
+
+            project.forEach((task) => {
+              var cols = []
+              if (!header.length) {
+                for (var i in task) {
+                  header.push(i)
+                }
+                header.forEach((col, index) => {
+                  cols.push('<th>' + col + '</th>')
+                  headerControls.push("<td><select data-column-mapping='" + col + "'>" + this.getOptions(index) + '</select>')
+                })
+                body.push('<tr>' + cols.join('') + '</tr>')
+                body.push('<tr>' + headerControls.join('') + '</tr>')
+              }
+              cols = []
+              header.forEach((col) => {
+                cols.push('<td>' + task[col] + '</td>')
+              })
+              body.push('<tr>' + cols.join('') + '</tr>')
+            })
+
+            var div = this.gantt.modalbox({
+              title: 'Assign columns',
+              type: 'excel-form',
+              text: '<table>' + body.join('') + '</table>',
+              buttons: [
+                { label: 'Save', css: 'link_save_btn', value: 'save' },
+                { label: 'Cancel', css: 'link_cancel_btn', value: 'cancel' }
+              ],
+              callback: (result) => {
+                switch (result) {
+                  case 'save':
+                    var selects = div.querySelectorAll('[data-column-mapping]')
+                    var mapping = {}
+                    selects.forEach((select) => {
+                      mapping[select.getAttribute('data-column-mapping')] = select.value
+                    })
+                    this.loadTable(mapping, project)
+                    break
+                  case 'cancel':
+                    // Cancel
+                    break
+                }
+              }
+            })
+          }
+        }
+      })
+    },
+    loadTable(mapping, data) {
+      var ganttDataset = {
+        data: [],
+        links: []
+      }
+
+      data.forEach((item) => {
+        var copy = {}
+        for (var i in item) {
+          if (mapping[i]) {
+            copy[mapping[i]] = item[i]
+          } else {
+            copy[this.to_snake_case(i)] = item[i]
+          }
+          copy.open = true
+          if (copy.wbs) {
+            var wbs = copy.wbs + ''
+            copy.id = wbs
+            var parts = wbs.split('.')
+            parts.pop()
+            copy.parent = parts.join('.')
+          }
+        }
+        ganttDataset.data.push(copy)
+      })
+      console.log('OOOOKK', ganttDataset)
+      this.gantt.clearAll()
+      this.gantt.parse(ganttDataset)
+    },
+    getOptions(selectedIndex) {
+      return [
+        'wbs', 'text', 'start_date', 'duration', 'end_date', 'id', 'parent'
+      ].map((name, index) => {
+        return "<option value='" + name + "' " + (selectedIndex === index ? 'selected' : '') + '>' + name + '</option>'
+      }).join('')
+    },
+    to_snake_case(name) {
+      return (name + '').toLowerCase().replace(/ /, '_')
+    },
+    /** 设置/获取日历ID */
+    setCalendarId() {
+      const s = this.gantt.getCalendar()
+      console.log({ s })
+      const calendarId = this.gantt.addCalendar({
+        id: 'roots', // optional
+        worktime: {
+          hours: ['8:00-17:00'],
+          days: [1, 0, 0, 1, 1, 1, 1]
+        }
+      })
+      console.log({ calendarId })
+      const m = this.gantt.getCalendar('roots')
+      console.log({ m })
+    },
+    /** 测试ganttAlert */
+    alert() {
+      this.gantt.alert({
+        title: 'Alert',
+        type: 'alert-error',
+        text: '错误'
+      })
     }
   }
 }
